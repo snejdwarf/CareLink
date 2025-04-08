@@ -12,6 +12,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Logging.AddConsole();
 builder.Services.AddDbContext<ClDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.WebHost.UseUrls("http://0.0.0.0:5001"); 
+
 
 var app = builder.Build();
 

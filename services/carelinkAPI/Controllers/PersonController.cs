@@ -18,7 +18,7 @@ public class PersonController : ControllerBase
             _context = context;
         }
 
-        [HttpGet("allepersoner")]
+        [HttpGet("alle")]
         public async Task<ActionResult<IEnumerable<Person>>> GetPersoner()
         {
             var personer = await _context.Personer
@@ -27,7 +27,7 @@ public class PersonController : ControllerBase
             return Ok(personer);
         }
 
-        [HttpPost("nyperson")]
+        [HttpPost("ny")]
         public async Task<ActionResult<IEnumerable<Person>>> AddPerson([FromBody] AddPersonDto personDto)
         {
 
@@ -46,7 +46,7 @@ public class PersonController : ControllerBase
             return Ok("Person tilføjet");
         }
 
-        [HttpGet("familie")]
+        [HttpGet("familie/{personid}")]
         public async Task<ActionResult<IEnumerable<Person>>> GetFamilie(int personid)
         {
             var person = await _context.Personer.FindAsync(personid);
@@ -67,7 +67,7 @@ public class PersonController : ControllerBase
             return Ok(familie);
         }
 
-        [HttpGet("personeropholdssted/{opholdsstedid}")]
+        [HttpGet("opholdssted/{opholdsstedid}")]
         public async Task<ActionResult<IEnumerable<Person>>> GetPersonerAssociatedWithOpholdssted(int opholdsstedid)
         {
             var opholdssted = await _context.Opholdssteder.FindAsync(opholdsstedid);
@@ -81,7 +81,7 @@ public class PersonController : ControllerBase
                 .Include(p => p.Opholdssted)
                 .ToListAsync();
 
-            if(personer ==null || !personer.Any())
+            if(personer == null || !personer.Any())
             {
                 return NotFound("Der findes ingen personer med tilknytning til det angivne opholdssted");
             }
