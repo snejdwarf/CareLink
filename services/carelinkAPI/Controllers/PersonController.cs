@@ -1,5 +1,6 @@
 using carelinkAPI.Data;
 using carelinkAPI.Models;
+using carelinkAPI.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +21,29 @@ public class PersonController : ControllerBase
         [HttpGet("allepersoner")]
         public async Task<ActionResult<IEnumerable<Person>>> GetPersoner()
         {
-            var personer = await _context.Personer.ToListAsync();
+            var personer = await _context.Personer
+                .Include(p => p.Opholdssted)
+                .ToListAsync();
             return Ok(personer);
+        }
+
+        [HttpPost("nyperson")]
+        public async Task<ActionResult<IEnumerable<Person>>> AddPerson([FromBody] AddPersonDto personDto)
+        {
+
+            var opholdssted = await _context.Opholdssteder.FindAsync(personDto.Opholdsstedid);
+            if (opholdssted == null)
+            {
+                return NotFound("Det angivne opholdssted findes ikke");
+            }
+            var newperson = new Person()
+            {
+                Navn = personDto.Navn,
+                Opholdssted = opholdssted
+            };
+            _context.Personer.Add(newperson);
+            await _context.SaveChangesAsync();
+            return Ok("Person tilføjet");
         }
 
         [HttpGet("familie")]
@@ -42,14 +64,6 @@ public class PersonController : ControllerBase
             var familie = relationer.SelectMany(pr => new[] { pr.PersonA, pr.PersonB })
                 .Distinct();
 
-
-            //var familie = await _context.PersonRelationer
-            //    .Where(pr => pr.PersonA.Id == personid || pr.PersonB.Id == personid)
-            //    .ToListAsync()
-            //    .SelectMany(pr => new[] { pr.PersonA, pr.PersonB })
-            //    .Distinct()
-            //    .Include(p => p.Opholdssted);
-
             return Ok(familie);
         }
 
@@ -64,7 +78,7 @@ public class PersonController : ControllerBase
             }
 
             var personer = await _context.Personer.Where(p => p.Opholdssted.Id == opholdsstedid)
-                .Include(p => p.Opholdssted.Id)
+                .Include(p => p.Opholdssted)
                 .ToListAsync();
 
             if(personer ==null || !personer.Any())

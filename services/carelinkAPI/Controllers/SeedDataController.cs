@@ -43,7 +43,7 @@ public class SeedDataController : ControllerBase
             var p4p5relation = new PersonRelation() { PersonA = p4, PersonB = p5 };
 
 
-            _context.PersonRelationer.Add(p1p2relation);
+            _context.PersonRelationer.AddRange(p1p2relation, p3p4relation, p4p5relation);
             _context.SaveChanges();
             return Ok("Database was populated with seed data");
         }
