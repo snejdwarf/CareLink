@@ -1,24 +1,37 @@
 version: '3.8'
 
 services:
-  api:
-    build: ./services/api
-    ports:
-      - "8080:80"
-    depends_on:
-      - postgres
-    environment:
-      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=mydb;Username=myuser;Password=mypassword
+  # api:
+  #   build: ./services/api
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     - ConnectionStrings__Default=Host=postgres;Port=5432;Database=pgdb;Username=pguser;Password=pgpassword
 
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: mydb
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: pgdb
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./services/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./services/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  pgadmin:
+      image: 'docker.io/dpage/pgadmin4:latest'
+      environment:
+        PGADMIN_DEFAULT_EMAIL: "admin@mail.com"
+        PGADMIN_DEFAULT_PASSWORD: "admin"
+      ports:
+        - 15080:80
+      volumes:
+        - pgadmin-data:/var/lib/pgadmin/      
 
 volumes:
   pgdata:
+  pgadmin-data:

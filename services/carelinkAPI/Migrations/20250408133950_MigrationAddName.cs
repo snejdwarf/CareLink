@@ -4,12 +4,12 @@
 
 namespace carelinkAPI.Migrations
 {
-    public partial class InitialCreate2 : Migration
+    public partial class MigrationAddName : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "cpr",
+                name: "Navn",
                 table: "Personer",
                 type: "text",
                 nullable: false,
@@ -19,7 +19,7 @@ namespace carelinkAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "cpr",
+                name: "Navn",
                 table: "Personer");
         }
     }

@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 
 namespace carelinkAPI.Models
 {
-    public class Person
+    public class PersonRelation
     {
         public int Id { get; set; }
-        public string Navn { get; set; }
-        public Opholdssted Opholdssted { get; set; }
+        public Person PersonA { get; set; }
+        public Person PersonB { get; set; }
+
+
     }
 }

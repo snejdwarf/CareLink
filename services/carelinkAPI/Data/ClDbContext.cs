@@ -12,6 +12,8 @@ namespace carelinkAPI.Data
         public ClDbContext(DbContextOptions<ClDbContext> options) : base(options) { }
 
         public DbSet<Person> Personer { get; set; }
+        public DbSet<Opholdssted> Opholdssteder { get; set; }
+        public DbSet<PersonRelation> PersonRelationer { get; set; }
 
     }
 }

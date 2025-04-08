@@ -15,24 +15,65 @@ public class PersonController : ControllerBase
         public PersonController(ClDbContext context)
         {
             _context = context;
-            var p = new Person() { id = 123 };
-            _context.Personer.Add(p);
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Person>>> GetUsers()
+        [HttpGet("allepersoner")]
+        public async Task<ActionResult<IEnumerable<Person>>> GetPersoner()
         {
-            var p = new Person() { id = 123 };
-            return Ok(p);
-            return await _context.Personer.ToListAsync();
+            var personer = await _context.Personer.ToListAsync();
+            return Ok(personer);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Person>> PostUser(Person person)
+        [HttpGet("familie")]
+        public async Task<ActionResult<IEnumerable<Person>>> GetFamilie(int personid)
         {
-            _context.Personer.Add(person);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetUsers), new { id = person.id }, person);
+            var person = await _context.Personer.FindAsync(personid);
+            if(person == null)
+            {
+                return NotFound("Personen med det angivne id findes ikke");
+            }
+
+            var relationer = await _context.PersonRelationer
+                .Where(pr => pr.PersonA.Id == personid || pr.PersonB.Id == personid)
+                .Include(pr => pr.PersonA.Opholdssted)
+                .Include(pr => pr.PersonB.Opholdssted)
+                .ToListAsync();
+
+            var familie = relationer.SelectMany(pr => new[] { pr.PersonA, pr.PersonB })
+                .Distinct();
+
+
+            //var familie = await _context.PersonRelationer
+            //    .Where(pr => pr.PersonA.Id == personid || pr.PersonB.Id == personid)
+            //    .ToListAsync()
+            //    .SelectMany(pr => new[] { pr.PersonA, pr.PersonB })
+            //    .Distinct()
+            //    .Include(p => p.Opholdssted);
+
+            return Ok(familie);
         }
+
+        [HttpGet("personeropholdssted/{opholdsstedid}")]
+        public async Task<ActionResult<IEnumerable<Person>>> GetPersonerAssociatedWithOpholdssted(int opholdsstedid)
+        {
+            var opholdssted = await _context.Opholdssteder.FindAsync(opholdsstedid);
+
+            if(opholdssted == null)
+            {
+                return NotFound("Opholdsstedet med det angivne id findes ikke");
+            }
+
+            var personer = await _context.Personer.Where(p => p.Opholdssted.Id == opholdsstedid)
+                .Include(p => p.Opholdssted.Id)
+                .ToListAsync();
+
+            if(personer ==null || !personer.Any())
+            {
+                return NotFound("Der findes ingen personer med tilknytning til det angivne opholdssted");
+            }
+
+            return Ok(personer);
+        }
+
     }
 }
